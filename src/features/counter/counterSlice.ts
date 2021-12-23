@@ -12,6 +12,11 @@ const initialState: CounterState = {
   status: 'idle',
 };
 
+// 초기 상태값에서 에러떳을경우 as 를 사용하여 초기상태를 캐스팅하여 문제 해결할 수 있다.
+// const initialState = {
+//   value : 0,
+// } as CounterState
+
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
 // will call the thunk with the `dispatch` function as the first argument. Async

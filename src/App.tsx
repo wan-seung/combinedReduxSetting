@@ -1,57 +1,74 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
 import './App.css';
+import {useGetPokemonByNameQuery} from "./services/pokemon";
+import {Link, Route, Routes} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {logout, selectCurrentUser, selectIsAuthenticated} from "./features/auth/authSlice";
+import { PrivateRoute } from './PrivateRoute'
+import NotFound from './pages/NotFound'
+import Login from './pages/Login'
+import Users from './pages/Users'
+import Dashboard from './pages/Dashboard'
+import { ROLE } from './features/auth/auth'
+
+
+function Header() {
+    const dispatch = useDispatch()
+    const user = useSelector(selectCurrentUser)
+    const isAuthenticated = useSelector(selectIsAuthenticated)
+
+    const handleLogout = () => {
+        dispatch(logout())
+    }
+
+    return (
+        <nav className="header-wrapper">
+            <div className="header">
+                <div className="header-logo">Private Route Example</div>
+                <div className="header-nav">
+                    <Link className="link" to="/">
+                        Login
+                    </Link>
+                    <Link className="link" to="/dashboard">
+                        Dashboard
+                    </Link>
+                    <Link className="link" to="/users">
+                        Users
+                    </Link>
+                </div>
+                {isAuthenticated && (
+                    <div className="header-info">
+            <span>
+              Name:{user?.first_name} {user?.last_name}
+            </span>
+                        <span>Role:{user?.role}</span>
+                        <a className="link" onClick={handleLogout}>
+                            Logout
+                        </a>
+                    </div>
+                )}
+            </div>
+        </nav>
+    )
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+        <div className="App">
+            <Header />
+            <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="*" element={<NotFound />} />
+                <Route
+                    path="dashboard"
+                    element={<PrivateRoute roles={[ROLE.ADMIN]} component={Dashboard} />}
+                />
+                <Route
+                    path="users"
+                    element={<PrivateRoute roles={[ROLE.ADMIN, ROLE.USER]} component={Users} />}
+                />
+            </Routes>
+        </div>
   );
 }
 

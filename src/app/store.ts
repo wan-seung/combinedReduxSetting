@@ -15,8 +15,12 @@ import {
   REGISTER,
 } from 'redux-persist';
 import counterReducer from '../features/counter/counterSlice';
+import authReducer from '../features/auth/authSlice'
+import {api} from '../features/auth/auth'
 import logger from 'redux-logger';
 import storage from 'redux-persist/lib/storage';
+import {setupListeners} from '@reduxjs/toolkit/query'
+import {pokemonApi} from '../services/pokemon'
 // import { myCustomApiService } from './api';
 
 // const rootReducer = combineReducers({
@@ -26,6 +30,9 @@ import storage from 'redux-persist/lib/storage';
 
 const rootReducer = combineReducers({
   counter: counterReducer,
+  [pokemonApi.reducerPath] : pokemonApi.reducer,
+  [api.reducerPath] : api.reducer,
+  auth: authReducer
 });
 
 // persist를 위한 기본 세팅
@@ -55,10 +62,12 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
       // redux-logger 설정
-    }).concat(logger),
+    }).concat(logger).concat(pokemonApi.middleware),
   //devTools prod에서만 사용안하고 나머지 사용
   devTools: process.env.NODE_ENV !== 'production',
 });
+
+setupListeners(store.dispatch)
 
 // 새로고침해도 스토어상의 값들 유지하는거 내보내기
 export const persistor = persistStore(store);
